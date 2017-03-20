@@ -46,7 +46,7 @@ namespace MileageLog
                     details[5] = Console.ReadLine();
 
                     newCar = new Car(details);
-                    Console.WriteLine("Car created.");
+                    SaveProfile(newCar);
                     newCar.GetInfo();
                     loop = false;
                 }
@@ -67,9 +67,10 @@ namespace MileageLog
             Console.WriteLine("Select a profile to open:");
             directory = System.IO.Directory.GetCurrentDirectory();
             filePaths = System.IO.Directory.GetFiles(directory, "*.txt");
-            foreach (string a in filePaths)
+            
+            foreach (string entry in filePaths)
             {
-                Console.WriteLine(filePaths);
+                Console.WriteLine(entry);
             }
 
             //Open selected file and insert information into Car object
@@ -79,26 +80,47 @@ namespace MileageLog
                 try
                 {
                     System.IO.StreamReader file = new System.IO.StreamReader(input);
-                    System.Console.WriteLine($"File opened: {input}");
-                    info = new string[6];
+                    info = new string[7];
 
-                    for (int i = 0; i <= 5; i++)
+                    for (int i = 0; i <= 6; i++)
                     {
                         info[i] = file.ReadLine();
-                        i++;
                     }
                     file.Close();
+                    System.Console.WriteLine($"File opened: {input}");
                     return info;
                 }
                 catch (System.IO.FileNotFoundException)
                 {
-                    Console.WriteLine($"Was unable to open file at '{input}'");
+                    Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
+                }
+                catch (System.IO.DirectoryNotFoundException)
+                {
+                    Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
                 }
             }
             //Should never get to this point in method.
             info = new string[1];
-            info[1] = "ERROR: Broke out of loop."];
+            info[1] = "ERROR: Broke out of loop.";
             return info;
+        }
+        
+        static void SaveProfile(Car myCar)
+        {
+            string filename;
+            string[] info = new string[7];
+
+            info[0] = myCar.make;
+            info[1] = myCar.model;
+            info[2] = myCar.year.ToString();
+            info[3] = myCar.odometer.ToString();
+            info[4] = myCar.capacity.ToString();
+            info[5] = myCar.serviceInt.ToString();
+            info[6] = myCar.fuelLevel.ToString();
+
+            filename = info[0] + info[1] + info[2] + ".txt";
+            System.IO.File.WriteAllLines(filename, info);
+            Console.WriteLine($"Profile created successfully: {filename}");
         }
     }
 
