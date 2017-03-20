@@ -11,7 +11,7 @@ namespace MileageLog
         static void Main(string[] args)
         {
             Boolean loop = true;
-            Car newCar;
+            Car newCar = new MileageLog.Car();
             string input; //Used to read user inputs
 ///
             Console.WriteLine("----5unagawa's Fuel Logger----");
@@ -23,7 +23,7 @@ namespace MileageLog
                 {
                     //open the profile
                     string[] profile = GetProfile();
-                    newCar = new Car(profile);
+                    newCar.Update(profile);
                     Console.WriteLine("Profile loaded.");
                     newCar.GetInfo();
                     loop = false;
@@ -45,15 +45,25 @@ namespace MileageLog
                     Console.Write("Enter service interval: ");
                     details[5] = Console.ReadLine();
 
-                    newCar = new Car(details);
+                    newCar.Update(details);
                     SaveProfile(newCar);
                     newCar.GetInfo();
                     loop = false;
                 }
-
+            }
+            loop = true;
+            while (loop)
+            {
+                Console.WriteLine("FILL (F)");
+                input = Console.ReadLine();
+                if (input.Equals("F", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    newCar.Fill();
+                   // UpdateProfile();
+                }
+            }
                 //Press any key to continue...
                 Console.ReadKey();
-            }
         }
         static string[] GetProfile()
         {
@@ -148,7 +158,34 @@ namespace MileageLog
             fuelLevel = 0;
         }
 
-        public Car(string[] info)
+        //Methods
+        public void Fill()  //assuming complete fill for now
+        {
+            int newOdo;             //Odometer reading at time of refill
+            decimal fillAmount;     //Quantity of fuel purchased
+            decimal mileage;
+            //get odometer
+            //get amount purchased
+            //calculate mileage
+            //update values
+
+            Console.WriteLine("odometer");
+            newOdo = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("amount");
+            fillAmount = Convert.ToDecimal(Console.ReadLine());
+
+            mileage = (fillAmount / (newOdo - odometer)) * 100;
+            Console.WriteLine($"You are using {Decimal.Round(mileage, 2)}L/100KM");
+
+        }
+        
+        public void GetInfo()
+        {
+            Console.WriteLine("----Car Details----");
+            Console.WriteLine($"Make: {make}\nModel: {model}\nYear: {year}\nOdometer: {odometer}km\nFuel Capacity: {capacity}L\nService Interval: {serviceInt}km");
+        }
+
+        public void Update(string[] info)
         {
             make = info[0];
             model = info[1];
@@ -157,13 +194,6 @@ namespace MileageLog
             capacity = Convert.ToInt32(info[4]);
             serviceInt = Convert.ToInt32(info[5]);
             fuelLevel = 0;
-        }
-
-        //Methods
-        public void GetInfo()
-        {
-            Console.WriteLine("----Car Details----");
-            Console.WriteLine($"Make: " + "{0}" + "\nModel: '{1}'" + "\nYear: {2}" + "\nOdometer: {3}km" + "\nFuel Capacity: {4}L" + "\nService Interval: {5}km", make, model, year, odometer, capacity, serviceInt);
         }
     }
 }
