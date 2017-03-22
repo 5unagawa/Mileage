@@ -23,10 +23,16 @@ namespace MileageLog
                 {
                     //open the profile
                     string[] profile = GetProfile();
-                    newCar.Update(profile);
-                    Console.WriteLine("Profile loaded.");
-                    newCar.GetInfo();
-                    loop = false;
+                    if (profile == null || profile.Length == 0)
+                        Console.WriteLine("No profiles found. Please create a profile.");
+
+                    else
+                    {
+                        newCar.Update(profile);
+                        Console.WriteLine("Profile loaded.");
+                        newCar.GetInfo();
+                        loop = false;
+                    }
                 }
                 else if (input.Equals("C", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -78,45 +84,50 @@ namespace MileageLog
             string[] filePaths; //String array of profile files stored in current working directory
 
             //Display profiles in directory
-            Console.WriteLine("Select a profile to open:");
             directory = System.IO.Directory.GetCurrentDirectory();
             filePaths = System.IO.Directory.GetFiles(directory, "*.txt");
+
+            if (filePaths == null || filePaths.Length == 0)
+                return null;
             
-            foreach (string entry in filePaths)
+            else
             {
-                Console.WriteLine(entry);
-            }
-
-            //Open selected file and insert information into Car object
-            while (loop)
-            {
-                input = Console.ReadLine();
-                try
+                Console.WriteLine("Select a profile to open:");
+                foreach (string entry in filePaths)
                 {
-                    System.IO.StreamReader file = new System.IO.StreamReader(input);
-                    info = new string[8];
-
-                    for (int i = 0; i <= 7; i++)
+                    Console.WriteLine(entry);
+                }
+                
+                //Open selected file and insert information into Car object
+                while (loop)
+                {
+                    input = Console.ReadLine();
+                    try
                     {
-                        info[i] = file.ReadLine();
+                        System.IO.StreamReader file = new System.IO.StreamReader(input);
+                        info = new string[8];
+
+                        for (int i = 0; i <= 7; i++)
+                        {
+                            info[i] = file.ReadLine();
+                        }
+                        file.Close();
+                        System.Console.WriteLine($"File opened: {input}");
+                        return info;
                     }
-                    file.Close();
-                    System.Console.WriteLine($"File opened: {input}");
-                    return info;
+                    catch (System.IO.FileNotFoundException)
+                    {
+                        Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
+                    }
+                    catch (System.IO.DirectoryNotFoundException)
+                    {
+                        Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
+                    }
                 }
-                catch (System.IO.FileNotFoundException)
-                {
-                    Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
-                }
-                catch (System.IO.DirectoryNotFoundException)
-                {
-                    Console.WriteLine($"Was unable to open file at '{input}. Please try again.'");
-                }
+                //Should never get to this point in method.
+                Console.WriteLine("ERROR: Broke out of loop.");
+                return null;
             }
-            //Should never get to this point in method.
-            info = new string[1];
-            info[1] = "ERROR: Broke out of loop.";
-            return info;
         }
         
         /// <summary>
@@ -251,7 +262,6 @@ namespace MileageLog
                 i *= ((int)b + 1);
             }
             id = string.Format("{0:X}", i - DateTime.Now.Ticks);
-            Console.WriteLine(id);
             return id;
         }
 
@@ -265,8 +275,8 @@ namespace MileageLog
             string path = $"logs/{uID}.txt";        //Path using Car's uID
             DateTime currdate = DateTime.Today;     //Today's date
             
-            //Append info to file
-            if (!System.IO.File.Exists(path))
+
+            if (!System.IO.File.Exists(path)) //Create a new file and append info
             {
                 using (System.IO.StreamWriter sw = System.IO.File.CreateText(path))
                 {
@@ -274,7 +284,7 @@ namespace MileageLog
                 }   
             }
 
-            else
+            else //Append info to file
             {
                 using (System.IO.StreamWriter sw = System.IO.File.AppendText(path))
                 {
